@@ -1,5 +1,5 @@
 import { component$, useStylesScoped$ } from '@builder.io/qwik';
-import { ChangeLocale } from '../change-locale';
+import { ChangeLocale } from './change-locale';
 import { QwikLogo } from '../icons/qwik';
 import styles from './header.css?inline';
 
@@ -14,7 +14,9 @@ export default component$(() => {
         </a>
       </div>
       <ul>
-        <li><ChangeLocale /></li>
+        <li> Idiomas: 
+          <ChangeLocale />
+        </li>
         <li>
           <a href="https://qwik.builder.io/docs/components/overview/" target="_blank">
             Docs

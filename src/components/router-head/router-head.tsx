@@ -9,7 +9,6 @@ import {
 export const RouterHead = component$(() => {
   const head = useDocumentHead();
   const loc = useLocation();
-
   return (
     <>
       <title>{t(head.title)}</title>

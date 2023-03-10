@@ -54,6 +54,6 @@ export default component$(() => {
 
 
 export const head: DocumentHead = {
-  title: 'home.head.title@@Welcome to Qwik',
-  meta: [{ name: 'description', content: 'home.head.description@@Qwik Speak with localized routing' }]
+  title: 'runtime.home.head.title@@Qwik Speak',
+  meta: [{ name: 'description', content: 'runtime.home.head.description@@Qwik Speak with localized routing' }]
 };

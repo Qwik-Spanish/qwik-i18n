@@ -1,0 +1,10 @@
+{
+    "runtime": {
+      "home": {
+        "head": {
+            "description": "[EN] Description example",
+            "title": "[EN] Welcome to Qwik"
+          }
+      }
+    }
+  }
