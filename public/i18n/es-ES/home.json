@@ -1,6 +1,10 @@
 {
   "home": {
     "dates": "Fechas",
+    "head": {
+      "description": "[ES] Ejemplo descripción",
+      "title": "[ES] Bienvenido a Qwik"
+    },
     "numbers": "Números"
   }
 }

@@ -1,6 +1,10 @@
 {
   "home": {
     "dates": "Datak",
+    "head": {
+      "description": "[EU] Adibidearen deskribapena",
+      "title": "[EU] Ongi etorri Qwik-era"
+    },
     "numbers": "Zenbakiak"
   }
 }

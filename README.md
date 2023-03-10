@@ -1,65 +1,112 @@
-# Qwik City App ⚡️
+# Qwik City App - i18n - qwik-speak ⚡️
 
-- [Qwik Docs](https://qwik.builder.io/)
-- [Discord](https://qwik.builder.io/chat)
-- [Qwik GitHub](https://github.com/BuilderIO/qwik)
-- [@QwikDev](https://twitter.com/QwikDev)
-- [Vite](https://vitejs.dev/)
+## Tutorial
 
----
+Ir a la [siguiente referencia](https://robisim74.gitbook.io/qwik-speak/library/quick-start) y seguid los siguientes pasos.
 
-## Project Structure
+### Básico
 
-This project is using Qwik with [QwikCity](https://qwik.builder.io/qwikcity/overview/). QwikCity is just a extra set of tools on top of Qwik to make it easier to build a full site, including directory-based routing, layouts, and more.
-
-Inside your project, you'll see the following directory structure:
-
+Instalar el paquete principal necesario después de crear el proyecto Qwik versión 0.19.2
 ```
-├── public/
-│   └── ...
-└── src/
-    ├── components/
-    │   └── ...
-    └── routes/
-        └── ...
+npm install qwik-speak@0.6.2 --save-dev
 ```
 
-- `src/routes`: Provides the directory based routing, which can include a hierarchy of `layout.tsx` layout files, and an `index.tsx` file as the page. Additionally, `index.ts` files are endpoints. Please see the [routing docs](https://qwik.builder.io/qwikcity/routing/overview/) for more info.
+Creamos el fichero `speak-i18n.ts` en el directorio `src/config` con el siguiente código:
 
-- `src/components`: Recommended directory for components.
+```typescript
 
-- `public`: Any static assets, like images, can be placed in the public directory. Please see the [Vite public directory](https://vitejs.dev/guide/assets.html#the-public-directory) for more info.
+// (1)
+import { $ } from '@builder.io/qwik';
+// (2)
+import { isServer } from '@builder.io/qwik/build';
+// (3)
+import type {
+  LoadTranslationFn,
+  SpeakConfig,
+  TranslationFn
+} from 'qwik-speak';
 
-## Add Integrations and deployment
+// 4
+export const config: SpeakConfig = {
+    // lang: https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+    // currency: https://en.wikipedia.org/wiki/List_of_circulating_currencies
+    // timezone: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  defaultLocale: { lang: 'en-US', currency: 'USD', timeZone: 'America/Los_Angeles' },
+  supportedLocales: [
+    { lang: 'es', currency: 'EUR', timeZone: 'Europe/Madrid' },
+    { lang: 'en-US', currency: 'USD', timeZone: 'America/Los_Angeles' }
+  ],
+  assets: [
+    'app' // Directorio de traducciones que va a estar disponible para compartir textos entre diferentes rutas
+  ]
+};
 
-Use the `npm run qwik add` command to add additional integrations. Some examples of integrations include: Cloudflare, Netlify or Express server, and the [Static Site Generator (SSG)](https://qwik.builder.io/qwikcity/guides/static-site-generation/).
+export const loadTranslation$: LoadTranslationFn = $(async (lang: string, asset: string, origin?: string) => {
+  let url = '';
+  // Absolute urls on server - Esto por si hacemos la carga desde el apartado del servidor
+  if (isServer && origin) {
+    url = origin;
+  }
+  url += `/i18n/${lang}/${asset}.json`;
+  const response = await fetch(url);
 
-```shell
-npm run qwik add # or `yarn qwik add`
+  if (response.ok) {
+    return response.json();
+  }
+  else if (response.status === 404) {
+    console.warn(`loadTranslation$: ${url} not found`);
+  }
+});
+
+export const translationFn: TranslationFn = {
+  loadTranslation$: loadTranslation$
+};
 ```
 
-## Development
+Hemos agregado la configuración Speak y la implementación de la función loadTranslation$. 
 
-Development mode uses [Vite's development server](https://vitejs.dev/). During development, the `dev` command will server-side render (SSR) the output.
+La carga de traducciones puede realizarse tanto en el servidor como en el cliente (en caso de SPA o cambio de idioma) y la función loadTranslation$ debe ser compatible con ambos.
 
-```shell
-npm start # or `yarn start`
-```
+Se requieren defaultLocale y supportedLocales porque la biblioteca usa la configuración regional predeterminada si se establece una configuración regional en tiempo de ejecución que no es compatible.
 
-> Note: during dev mode, Vite may request a significant number of `.js` files. This does not represent a Qwik production build.
+### Añadir el proveedor de Qwik para cargar las traducciones
 
-## Preview
+Simplemente añadimos lo que tenemos con QwikCityProvider dentro del componente QwikSpeakProvider en `src/root.tsx` y debemos de pasarle las funciones de configuración (config) y traducción (translationFn) que hemos creado dentro de `src/config/speak-18n.ts`:
 
-The preview command will create a production build of the client modules, a production build of `src/entry.preview.tsx`, and run a local server. The preview server is only for convenience to locally preview a production build, and it should not be used as a production server.
+```typescript
+import { component$, useStyles$ } from '@builder.io/qwik';
+import { QwikCityProvider, RouterOutlet, ServiceWorkerRegister } from '@builder.io/qwik-city';
+// Proveedor para los textos traducidos de i18n
+import { QwikSpeakProvider } from 'qwik-speak';
 
-```shell
-npm run preview # or `yarn preview`
-```
+import { RouterHead } from './components/router-head/router-head';
 
-## Production
+// Configuración y la función para ejecutar las traducciones
+import { config, translationFn } from './config/speak-i18n';
 
-The production build will generate client and server modules by running both client and server build commands. Additionally, the build command will use Typescript to run a type check on the source code.
+import globalStyles from './global.css?inline';
 
-```shell
-npm run build # or `yarn build`
+export default component$(() => {
+  useStyles$(globalStyles);
+
+  return (
+    /**
+     * Init Qwik Speak (only available in child components)
+     */
+    <QwikSpeakProvider config={config} translationFn={translationFn}>
+      <QwikCityProvider>
+        <head>
+          <meta charSet="utf-8" />
+          <link rel="manifest" href="/manifest.json" />
+          <RouterHead />
+        </head>
+        <body>
+          <RouterOutlet />
+          <ServiceWorkerRegister />
+        </body>
+      </QwikCityProvider>
+    </QwikSpeakProvider>
+  );
+});
+
 ```

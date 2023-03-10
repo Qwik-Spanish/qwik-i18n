@@ -1,6 +1,5 @@
 import { component$ } from '@builder.io/qwik';
 import type { DocumentHead } from '@builder.io/qwik-city';
-import { Link } from '@builder.io/qwik-city';
 import {
   $translate as t,
   formatDate as fd,
@@ -46,8 +45,6 @@ export const Home = component$(() => {
 export default component$(() => {
   return (
     <div>
-      
-
       <Speak assets={['home']}>
         <Home />
       </Speak>
@@ -55,12 +52,8 @@ export default component$(() => {
   );
 });
 
+
 export const head: DocumentHead = {
-  title: 'Welcome to Qwik',
-  meta: [
-    {
-      name: 'description',
-      content: 'Qwik site description',
-    },
-  ],
+  title: 'home.head.title@@Welcome to Qwik',
+  meta: [{ name: 'description', content: 'home.head.description@@Qwik Speak with localized routing' }]
 };
